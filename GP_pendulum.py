@@ -3,8 +3,6 @@
 import CMGDB_util
 import CMGDB
 import RoA
-import dyn_tools
-import Grid
 import sys
 
 import TimeMap
