@@ -306,7 +306,7 @@ def PlotTiles(lower_bounds, upper_bounds, selection=[], fig_w=8, fig_h=8, xlim=N
 
     # 2D plotting or 2D with a given section
     if section or dim == 2:
-        fig, ax = plt.subplots(figsize=(fig_w, fig_h), dpi=300)
+        fig, ax = plt.subplots(figsize=(fig_w, fig_h))
 
         if dim == 2:
             section = ([], 'projection')

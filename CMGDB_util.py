@@ -116,3 +116,63 @@ class CMGDB_util:
         Y_l_bounds = [min([y[d] for y in Y]) - K*(rect[d + dim] - rect[d]) for d in range(dim)]
         Y_u_bounds = [max([y[d] for y in Y]) + K*(rect[d + dim] - rect[d]) for d in range(dim)]
         return Y_l_bounds + Y_u_bounds
+
+    def Box_GP_K(self, learned_f, rect, K):
+        """learned_f with predicted mean and standard deviation
+        K Lipschit constant"""
+        dim = int(len(rect) / 2)
+        X = CMGDB.CornerPoints(rect)
+        # print(X)
+        # Evaluate f at point in X
+        Y, S = learned_f(X)
+        # Y = np.array([u(x) for x in X])
+        # S = np.array([s(x) for x in X])
+
+        i, j = Y.shape
+        S = np.resize(S, (i, 1))
+        S_ = S
+        for k in range(j-1):
+            S_ = np.hstack((S_, S))
+
+        # print(f"{Y}\n {S} \n {S_}")
+        Y_max = Y + S_/2
+        Y_min = Y - S_/2
+
+        # print(f"{Y_min}\n {Y_max}")
+
+        # print(f"{np.amin(Y_min[:,0])}\n {np.amax(Y_max[:,1])}")
+
+        # Get lower and upper bounds of Y
+        Y_l_bounds = [np.amin(Y_min[:, d]) - K*(rect[d + dim] - rect[d]) for d in range(dim)]
+        Y_u_bounds = [np.amax(Y_max[:, d]) + K*(rect[d + dim] - rect[d]) for d in range(dim)]
+        return Y_l_bounds + Y_u_bounds
+
+    def F_GP_K(self, learned_f, rect, K):
+        """learned_f with predicted mean and standard deviation
+        K Lipschit constant"""
+        dim = int(len(rect) / 2)
+        X = CMGDB.CenterPoint(rect)
+        # print(X)
+        # Evaluate f at point in X
+        Y, S = learned_f(X)
+        # Y = np.array([u(x) for x in X])
+        # S = np.array([s(x) for x in X])
+
+        i, j = Y.shape
+        S = np.resize(S, (i, 1))
+        S_ = S
+        for k in range(j-1):
+            S_ = np.hstack((S_, S))
+
+        # print(f"{Y}\n {S} \n {S_}")
+        Y_max = Y + S_/2
+        Y_min = Y - S_/2
+
+        # print(f"{Y_min}\n {Y_max}")
+
+        # print(f"{np.amin(Y_min[:,0])}\n {np.amax(Y_max[:,1])}")
+
+        # Get lower and upper bounds of Y
+        Y_l_bounds = [np.amin(Y_min[:, d]) - K*(rect[d + dim] - rect[d]) for d in range(dim)]
+        Y_u_bounds = [np.amax(Y_max[:, d]) + K*(rect[d + dim] - rect[d]) for d in range(dim)]
+        return Y_l_bounds + Y_u_bounds
