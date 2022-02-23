@@ -117,26 +117,25 @@ class CMGDB_util:
         Y_u_bounds = [max([y[d] for y in Y]) + K*(rect[d + dim] - rect[d]) for d in range(dim)]
         return Y_l_bounds + Y_u_bounds
 
-    def Box_GP_K(self, learned_f, rect, K):
+    def Box_GP_K(self, learned_f, rect, K, n=-3):
         """learned_f with predicted mean and standard deviation
         K Lipschit constant"""
         dim = int(len(rect) / 2)
         X = CMGDB.CornerPoints(rect)
         # print(X)
         # Evaluate f at point in X
-        Y, S = learned_f(X)
-        # Y = np.array([u(x) for x in X])
-        # S = np.array([s(x) for x in X])
 
-        i, j = Y.shape
-        S = np.resize(S, (i, 1))
-        S_ = S
-        for k in range(j-1):
-            S_ = np.hstack((S_, S))
+        Y, S = learned_f(X[0])
+
+        X = X[1::]
+        for x_ in X:
+            y_, s_ = learned_f(x_)
+            Y = np.concatenate((Y, y_))
+            S = np.concatenate((S, s_))
 
         # print(f"{Y}\n {S} \n {S_}")
-        Y_max = Y + S_/2
-        Y_min = Y - S_/2
+        Y_max = Y + S*(2**n)
+        Y_min = Y - S*(2**n)
 
         # print(f"{Y_min}\n {Y_max}")
 
@@ -147,7 +146,7 @@ class CMGDB_util:
         Y_u_bounds = [np.amax(Y_max[:, d]) + K*(rect[d + dim] - rect[d]) for d in range(dim)]
         return Y_l_bounds + Y_u_bounds
 
-    def F_GP_K(self, learned_f, rect, K):
+    def F_GP_K(self, learned_f, rect, K, n=-3):
         """learned_f with predicted mean and standard deviation
         K Lipschit constant"""
         dim = int(len(rect) / 2)
@@ -155,18 +154,10 @@ class CMGDB_util:
         # print(X)
         # Evaluate f at point in X
         Y, S = learned_f(X)
-        # Y = np.array([u(x) for x in X])
-        # S = np.array([s(x) for x in X])
-
-        i, j = Y.shape
-        S = np.resize(S, (i, 1))
-        S_ = S
-        for k in range(j-1):
-            S_ = np.hstack((S_, S))
 
         # print(f"{Y}\n {S} \n {S_}")
-        Y_max = Y + S_/2
-        Y_min = Y - S_/2
+        Y_max = Y + S*(2**n)
+        Y_min = Y - S*(2**n)
 
         # print(f"{Y_min}\n {Y_max}")
 

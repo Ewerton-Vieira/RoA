@@ -22,7 +22,7 @@ from datetime import datetime
 if __name__ == "__main__":
     MG_util = CMGDB_util.CMGDB_util()
 
-    sb = 14
+    sb = 12
     time = 1  # time is equal to 10s
 
     # subdiv_min = 10  # minimal subdivision to compute Morse Graph
@@ -99,17 +99,21 @@ if __name__ == "__main__":
     Y = np.array(Y)
 
     # train GP regression with X and Y
-    gp = GP(X, Y)
+    gp1 = GP(X, Y[:, 0].reshape(-1, 1))
+
+    gp2 = GP(X, Y[:, 1].reshape(-1, 1))
 
     # prediction function
 
     def learned_f(X):
-        return gp.predict(X, return_std=True)
-
-    print(learned_f([[1, 1]]))
-    K = 1
+        X = np.array(X).reshape(1, -1)
+        y1, s1 = gp1.predict(X, return_std=True)
+        y2, s2 = gp2.predict(X, return_std=True)
+        return np.concatenate((y1, y2), axis=1), np.concatenate((s1, s2), axis=0).reshape(1, -1)
 
     ############
+
+    K = 1
 
     def F(rect):
         return MG_util.Box_GP_K(learned_f, rect, K)
@@ -169,10 +173,11 @@ if __name__ == "__main__":
 
     # roa.save_file(base_name)
 
-    ##########
+  ##########
 
     def g(X):
-        return gp.predict([X])[0]
+        Y, _ = learned_f(X)
+        return Y.tolist()[0]
 
     def F(rect):
         # return MG_util.Box_GP_K(learned_f, rect, K)
@@ -199,5 +204,3 @@ if __name__ == "__main__":
     #               from_file=base_name, from_file_basic=True)
 
     plt.show()
-
-    # roa.save_file(base_name)
