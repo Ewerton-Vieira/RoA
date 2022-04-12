@@ -167,3 +167,27 @@ class CMGDB_util:
         Y_l_bounds = [np.amin(Y_min[:, d]) - K*(rect[d + dim] - rect[d]) for d in range(dim)]
         Y_u_bounds = [np.amax(Y_max[:, d]) + K*(rect[d + dim] - rect[d]) for d in range(dim)]
         return Y_l_bounds + Y_u_bounds
+
+    def Box_J(self, f, J, rect):
+        """f: function, J: Jacobian matrix, rect: rectangle
+        Given a rect return the smallest rectangle that contains the image of the
+        J \cdot rect"""
+        dim = int(len(rect) / 2)
+        x = rect[0:dim]
+        y = f(x)
+        Jac, _ = J(np.array(x).reshape(-1, dim))
+        # next, add the sum of the columns
+        Jac = np.concatenate((Jac, Jac.sum(axis=0).reshape(1, dim)), axis=0)
+
+        Y_l_bounds = []
+        Y_u_bounds = []
+        for d in range(dim):
+            Y_l_bounds.append(
+                np.amin(Jac[:, d]) * (rect[d + dim] - rect[d]) + y[d]
+            )
+
+            Y_u_bounds.append(
+                np.amax(Jac[:, d]) * (rect[d + dim] - rect[d]) + y[d]
+            )
+
+        return Y_l_bounds + Y_u_bounds
