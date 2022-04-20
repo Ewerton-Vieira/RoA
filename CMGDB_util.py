@@ -191,3 +191,67 @@ class CMGDB_util:
             )
 
         return Y_l_bounds + Y_u_bounds
+
+    def F_J(self, learned_f, J, rect, lower_bounds, n=-3):
+        """f: function, J: Jacobian matrix, rect: rectangle
+        Given a rect return the smallest rectangle that contains the image of the
+        J \cdot rect"""
+        dim = int(len(rect) / 2)
+        X = rect[0:dim]
+        Y, S = learned_f(X)
+        Y_max = Y + S*(2**n)
+        Y_min = Y - S*(2**n)
+
+        size_of_box = [rect[d+dim] - rect[d] for d in range(dim)]
+
+        coordinate = [int(
+            np.rint((rect[d] - lower_bounds[d]) / size_of_box[d])
+        ) % 2 for d in range(dim)
+        ]
+
+        print(coordinate)
+        Y_l_bounds = []
+        Y_u_bounds = []
+
+        print(f"X {X} \n Y {Y} \n Y_min {Y_min}\n Y_max {Y_max} \n size_of_box {size_of_box}")
+
+        if any(coordinate):  # any even coordinate compute J
+
+            Jac, _ = J(np.array(X).reshape(-1, dim))
+
+            print(f"J {Jac}")
+            for d in range(dim):
+                J_d_norm = np.linalg.norm(Jac[d, :])
+                Y_l_bounds.append(Y_min[:, d] - J_d_norm * size_of_box[d])
+                Y_u_bounds.append(Y_max[:, d] + J_d_norm * size_of_box[d])
+
+        else:
+
+            for d in range(dim):
+                Y_l_bounds.append(Y_min[:, d])
+                Y_u_bounds.append(Y_max[:, d])
+
+        return Y_l_bounds + Y_u_bounds
+
+    def Box_ptwise(self, learned_f, rect, n=-3):
+        """learned_f with predicted mean applied to the corner points
+        and standard deviation applied to the center point"""
+
+        dim = int(len(rect) / 2)
+        X = CMGDB.CenterPoint(rect) + CMGDB.CornerPoints(rect)
+        # Evaluate f at point in X
+
+        Y, S = learned_f(X[0])
+
+        Y = Y - S*(2**n)
+        Y = np.concatenate((Y, Y + 2 * S * (2 ** n)))
+
+        X = X[1::]
+        for x_ in X:
+            y_, _ = learned_f(x_)
+            Y = np.concatenate((Y, y_))
+
+        # Get lower and upper bounds of Y
+        Y_l_bounds = [np.amin(Y[:, d]) for d in range(dim)]
+        Y_u_bounds = [np.amax(Y[:, d]) for d in range(dim)]
+        return Y_l_bounds + Y_u_bounds
