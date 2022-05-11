@@ -13,7 +13,6 @@ import graphviz
 import Poset_E
 import os
 import csv
-import MultivaluedMap
 
 # from pympler.asizeof import asizeof
 
@@ -45,7 +44,8 @@ class RoA:
         morse_node = max[0] if max else -1
 
         self.dict_tiles[u] = morse_node
-        self.S.remove(u)  # remove it since we dont have to compute again
+        if u in self.S:  # remove it since we dont have to compute again
+            self.S.remove(u)
         return morse_node
 
     def assign_morse_nodes2tiles(self):
@@ -92,14 +92,22 @@ class RoA:
 
                 self.tiles_in_morse_sets[j] = i
 
+        cyclic_Morse_graph = False
         MG = pychomp.DirectedAcyclicGraph()  # building Morse Graph Poset
         MG.add_vertex(0)
         for u in range(morse_graph.num_vertices()):
             for v in morse_graph.adjacencies(u):
                 MG.add_edge(u, v)
-        self.MG = Poset_E.Poset_E(MG)
+                if u in MG.adjacencies(v):  # prevent to compute with cyclic MG
+                    cyclic_Morse_graph = True
 
-        self.assign_morse_nodes2tiles()
+        if cyclic_Morse_graph:
+            print("Morse Graph input is cyclic, wrong input")
+
+        else:
+            self.MG = Poset_E.Poset_E(MG)
+
+            self.assign_morse_nodes2tiles()
 
         # print(
         #     f"memory size of: tiles_in_morse_sets={asizeof(self.tiles_in_morse_sets)}\n",

@@ -12,11 +12,12 @@ import os
 import CMGDB
 from datetime import datetime
 import time
+import itertools
 
 
 class CMGDB_util:
 
-    def run_CMGDB(self, subdiv_min, subdiv_max, lower_bounds, upper_bounds, phase_periodic, F, base_name, subdiv_init=6, subdiv_limit=10000):
+    def run_CMGDB(self, subdiv_min, subdiv_max, lower_bounds, upper_bounds, phase_periodic, F, base_name, subdiv_init=6, subdiv_limit=10000, cmap=matplotlib.cm.brg):
         # Define the parameters for CMGDB
 
         model = CMGDB.Model(subdiv_min, subdiv_max, subdiv_init, subdiv_limit,
@@ -33,8 +34,8 @@ class CMGDB_util:
         MG = dir_path + base_name
         morse_fname = dir_path + base_name + ".csv"
 
-        CMGDB.PlotMorseGraph(morse_graph).format = 'png'
-        CMGDB.PlotMorseGraph(morse_graph).render(MG)
+        CMGDB.PlotMorseGraph(morse_graph, cmap).format = 'png'
+        CMGDB.PlotMorseGraph(morse_graph, cmap).render(MG)
 
         # Save file
         morse_nodes = range(morse_graph.num_vertices())
@@ -209,17 +210,17 @@ class CMGDB_util:
         ) % 2 for d in range(dim)
         ]
 
-        print(coordinate)
+        # print(coordinate)
         Y_l_bounds = []
         Y_u_bounds = []
 
-        print(f"X {X} \n Y {Y} \n Y_min {Y_min}\n Y_max {Y_max} \n size_of_box {size_of_box}")
+        # print(f"X {X} \n Y {Y} \n Y_min {Y_min}\n Y_max {Y_max} \n size_of_box {size_of_box}")
 
         if any(coordinate):  # any even coordinate compute J
 
             Jac, _ = J(np.array(X).reshape(-1, dim))
 
-            print(f"J {Jac}")
+            # print(f"J {Jac}")
             for d in range(dim):
                 J_d_norm = np.linalg.norm(Jac[d, :])
                 Y_l_bounds.append(Y_min[:, d] - J_d_norm * size_of_box[d])
@@ -255,3 +256,24 @@ class CMGDB_util:
         Y_l_bounds = [np.amin(Y[:, d]) for d in range(dim)]
         Y_u_bounds = [np.amax(Y[:, d]) for d in range(dim)]
         return Y_l_bounds + Y_u_bounds
+
+    def CornerPoints_noisy(self, rect, noise):
+        dim = int(len(rect) / 2)
+
+        # Get list of intervals
+        list_intvals = [[rect[d] - noise[d], rect[d + dim] + noise[d]] for d in range(dim)]
+        # Get points in the cartesian product of intervals
+        X = [list(u) for u in itertools.product(*list_intvals)]
+        return X
+
+    def Box_noisy_K(self, f, rect, K, noise):
+        """Box map with noise"""
+        dim = int(len(rect) / 2)
+        X = self.CornerPoints_noisy(rect, noise)
+        # Evaluate f at point in X
+        Y = [f(x) for x in X]
+        # Get lower and upper bounds of Y
+        Y_l_bounds = [min([y[d] for y in Y]) - K[d]*(rect[d + dim] - rect[d]) for d in range(dim)]
+        Y_u_bounds = [max([y[d] for y in Y]) + K[d]*(rect[d + dim] - rect[d]) for d in range(dim)]
+        f_rect = Y_l_bounds + Y_u_bounds
+        return f_rect
