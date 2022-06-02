@@ -386,11 +386,11 @@ def PlotTiles(lower_bounds, upper_bounds, selection=[], fig_w=8, fig_h=8, xlim=N
         if plot_point:
             for i, j in morse.items():
                 j = np.array(j)
-                plt.plot(j[:, 0], j[:, 1], j[:, 2], '.', color=i)
+                plt.plot(j[:, 0], j[:, 1], j[:, 2], '+', color=i)
 
-            # for i, j in tiles.items():
-            #     j = np.array(j)
-            #     plt.plot(j[:, 0], j[:, 1], j[:, 2], '.', color=i, alpha=0.2)
+            for i, j in tiles.items():
+                j = np.array(j)
+                plt.plot(j[:, 0], j[:, 1], j[:, 2], '.', color=i, alpha=0.1)
 
         else:
 
