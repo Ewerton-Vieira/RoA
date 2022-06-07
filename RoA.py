@@ -390,7 +390,7 @@ def PlotTiles(lower_bounds, upper_bounds, selection=[], fig_w=8, fig_h=8, xlim=N
 
             for i, j in tiles.items():
                 j = np.array(j)
-                plt.plot(j[:, 0], j[:, 1], j[:, 2], '.', color="r", alpha=0.1)
+                plt.plot(j[:, 0], j[:, 1], j[:, 2], '.', color=i, alpha=0.1)
 
         else:
 
