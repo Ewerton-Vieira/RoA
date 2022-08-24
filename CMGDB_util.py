@@ -17,7 +17,7 @@ import itertools
 
 class CMGDB_util:
 
-    def run_CMGDB(self, subdiv_min, subdiv_max, lower_bounds, upper_bounds, phase_periodic, F, base_name, subdiv_init=6, subdiv_limit=10000, cmap=matplotlib.cm.brg):
+    def run_CMGDB(self, subdiv_min, subdiv_max, lower_bounds, upper_bounds, phase_periodic, F, base_name, subdiv_init=6, subdiv_limit=10000, cmap=matplotlib.cm.get_cmap('viridis', 256)):
         # Define the parameters for CMGDB
 
         model = CMGDB.Model(subdiv_min, subdiv_max, subdiv_init, subdiv_limit,
@@ -114,8 +114,8 @@ class CMGDB_util:
         # Evaluate f at point in X
         Y = [f(x) for x in X]
         # Get lower and upper bounds of Y
-        Y_l_bounds = [min([y[d] for y in Y]) - K*(rect[d + dim] - rect[d]) for d in range(dim)]
-        Y_u_bounds = [max([y[d] for y in Y]) + K*(rect[d + dim] - rect[d]) for d in range(dim)]
+        Y_l_bounds = [min([y[d] for y in Y]) - K[d]*(rect[d + dim] - rect[d]) for d in range(dim)]
+        Y_u_bounds = [max([y[d] for y in Y]) + K[d]*(rect[d + dim] - rect[d]) for d in range(dim)]
         return Y_l_bounds + Y_u_bounds
 
     def Box_GP_K(self, learned_f, rect, K, n=-3):
@@ -193,10 +193,11 @@ class CMGDB_util:
 
         return Y_l_bounds + Y_u_bounds
 
-    def F_J(self, learned_f, J, rect, lower_bounds, n=-3):
+    def F_J(self, learned_f, J, rect, lower_bounds, n=-3, weak_multivalued_map=1):
         """f: function, J: Jacobian matrix, rect: rectangle
         Given a rect return the smallest rectangle that contains the image of the
-        J \cdot rect"""
+        J \cdot rect
+        weak_multivalued_map: the number to compute the subset S of all cells"""
         dim = int(len(rect) / 2)
         X = rect[0:dim]
         Y, S = learned_f(X)
@@ -205,10 +206,13 @@ class CMGDB_util:
 
         size_of_box = [rect[d+dim] - rect[d] for d in range(dim)]
 
-        coordinate = [int(
-            np.rint((rect[d] - lower_bounds[d]) / size_of_box[d])
-        ) % 2 for d in range(dim)
-        ]
+        if weak_multivalued_map:
+            coordinate = [int(
+                np.rint((rect[d] - lower_bounds[d]) / size_of_box[d])
+            ) % (1+weak_multivalued_map) for d in range(dim)
+            ]
+        else:
+            coordinate = True
 
         # print(coordinate)
         Y_l_bounds = []
@@ -216,8 +220,9 @@ class CMGDB_util:
 
         # print(f"X {X} \n Y {Y} \n Y_min {Y_min}\n Y_max {Y_max} \n size_of_box {size_of_box}")
 
-        if any(coordinate):  # any even coordinate compute J
+        if not all(coordinate):  # Compute J if all coordinate = 0 module (weak_multivalued_map+1)
 
+            print(coordinate)
             Jac, _ = J(np.array(X).reshape(-1, dim))
 
             # print(f"J {Jac}")
