@@ -12,8 +12,8 @@ https://github.com/marciogameiro/CMGDB
 
 # Documentation
 
-Import RoA.py and Poset_E.py to run RoA (Region of Attractions) of attractors found by the Morse graph.
+Import RoA.py to run RoA (Region of Attractions) of attractors found by the Morse graph.
 
-# Examples
+# Example
 
 To get started on how to run the code see the example.nb (Jupyter notebook).
