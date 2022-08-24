@@ -12,7 +12,7 @@ https://github.com/marciogameiro/CMGDB
 
 # Documentation
 
-Import RoA.py to run RoA (Region of Attractions) for the Morse graph obtained by CMGDB.
+Import RoA.py, CMGDB_util.py and Poset_E.py to run RoA (Region of Attractions) for the Morse graph obtained by CMGDB.
 
 # Example
 
