@@ -13,9 +13,6 @@ import graphviz
 import Poset_E
 import os
 import csv
-
-# from pympler.asizeof import asizeof
-
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
@@ -114,6 +111,16 @@ class RoA:
         #     f"memory size of: dict_tiles={asizeof(self.dict_tiles)}\n",
         #     f"MG={asizeof(self.MG)}")
 
+        # newcolors
+        viridis = matplotlib.cm.get_cmap('viridis', 256)
+        newcolors = viridis(np.linspace(0, 1, 256))
+        orange = np.array([253/256, 174/256, 97/256, 1])
+        yellowish = np.array([233/256, 204/256, 50/256, 1])
+        newcolors[109:146, :] = orange
+        newcolors[219:, :] = yellowish
+        self.newcmp = matplotlib.colors.ListedColormap(newcolors)
+        # self.newcmp=matplotlib.cm.brg  # old default option
+
     def vertices(self):
         """
         Return the set of elements in the poset
@@ -168,7 +175,7 @@ class RoA:
         return d_vol
 
     def PlotTiles(self, selection=[], fig_w=8, fig_h=8, xlim=None, ylim=None,
-                  cmap=matplotlib.cm.brg, name_plot=' ', from_file=None, plot_point=False, section=None):
+                  cmap=matplotlib.cm.get_cmap('viridis', 256), name_plot=' ', from_file=None, plot_point=False, section=None):
         self.save_file(name="temp")
 
         rect = self.morse_graph.phase_space_box(0)
@@ -194,8 +201,8 @@ class RoA:
         return fig, ax
 
 
-def PlotTiles(lower_bounds, upper_bounds, selection=[], fig_w=8, fig_h=8, xlim=None, ylim=None,
-              cmap=matplotlib.cm.brg, name_plot=' ', from_file=None, plot_point=False, section=None, from_file_basic=False):
+def PlotTiles(lower_bounds, upper_bounds, selection=[], fig_w=8, fig_h=8, xlim=None, ylim=None, fontsize=32,
+              cmap=matplotlib.cm.get_cmap('viridis', 256), name_plot=' ', from_file=None, plot_point=False, section=None, from_file_basic=False):
     """ TODO:
     * section = ([z,w],(a,b,c,d)), 3D section when [z,w]=(c,d)
     * selection = selection of morse sets
@@ -359,12 +366,28 @@ def PlotTiles(lower_bounds, upper_bounds, selection=[], fig_w=8, fig_h=8, xlim=N
                     rectangles_list.append(rectangle)
             pc = PatchCollection(rectangles_list, cmap=cmap, fc=i, alpha=1, ec='none')
             ax.add_collection(pc)
+
+        tick = 5  # tick for 2D plots
+
         if xlim and ylim:
             ax.set_xlim([xlim[0], xlim[1]])
             ax.set_ylim([ylim[0], ylim[1]])
+            plt.xticks(np.arange(xlim[0], xlim[1], tick))
+            plt.yticks(np.arange(ylim[0], ylim[1], tick))
+            plt.xticks(np.linspace(xlim[0], xlim[1], tick))
+            plt.yticks(np.linspace(ylim[0], ylim[1], tick))
         else:
             ax.set_xlim([lower_bounds[d1], upper_bounds[d1]])
             ax.set_ylim([lower_bounds[d2], upper_bounds[d2]])
+            plt.xticks(np.arange(lower_bounds[d1], upper_bounds[d1], tick))
+            plt.yticks(np.arange(lower_bounds[d2], upper_bounds[d2], tick))
+            plt.xticks(np.linspace(lower_bounds[d1], upper_bounds[d1], tick))
+            plt.yticks(np.linspace(lower_bounds[d2], upper_bounds[d2], tick))
+        plt.xticks(fontsize=fontsize)
+        plt.yticks(fontsize=fontsize)
+        ax.xaxis.label.set_size(fontsize)
+        ax.yaxis.label.set_size(fontsize)
+
         ax.set_xlabel(str(d1))
         ax.set_ylabel(str(d2))
         if section[1] == 'projection':
@@ -386,11 +409,11 @@ def PlotTiles(lower_bounds, upper_bounds, selection=[], fig_w=8, fig_h=8, xlim=N
         if plot_point:
             for i, j in morse.items():
                 j = np.array(j)
-                plt.plot(j[:, 0], j[:, 1], j[:, 2], '+', color=i)
+                plt.plot(j[:, 0], j[:, 1], j[:, 2], 's', color=i, alpha=0.1)
 
             for i, j in tiles.items():
                 j = np.array(j)
-                plt.plot(j[:, 0], j[:, 1], j[:, 2], '.', color=i, alpha=0.1)
+                plt.plot(j[:, 0], j[:, 1], j[:, 2], 's', color=i, alpha=1)
 
         else:
 
