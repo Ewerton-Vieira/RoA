@@ -218,7 +218,7 @@ def PlotTiles(lower_bounds, upper_bounds, selection=[], fig_w=8, fig_h=8, xlim=N
     if from_file and not from_file_basic:
 
         # read file
-        from_file = dir_path + from_file + "_ROA_" + ".csv"
+        from_file = dir_path + from_file + "_RoA_" + ".csv"
         with open(from_file, "r") as file:
             f = csv.reader(file, delimiter=',')
             next(f)
