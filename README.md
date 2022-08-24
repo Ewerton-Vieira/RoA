@@ -2,13 +2,13 @@
 
 
 # Dependencies
-Install CMGDB (Conley Morse Graph Database)
+Install CMGDB (Conley Morse Graph Database) https://github.com/marciogameiro/CMGDB
 
 pip install CMGDB
 
-or use the source
+and Intall pyChomp (Conley homology project (python version))
 
-https://github.com/marciogameiro/CMGDB
+pip install pychomp2
 
 # Documentation
 
