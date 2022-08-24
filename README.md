@@ -16,4 +16,4 @@ Import RoA.py to run RoA (Region of Attractions) for the Morse graph obtained by
 
 # Example
 
-To get started on how to run the code see the example.nb (Jupyter notebook).
+To get started on how to run the code see the example.ipynb (Jupyter notebook).
