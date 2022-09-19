@@ -25,7 +25,7 @@ class GP:
         # kernel = RationalQuadratic()
 
         n_restarts_optimizer = 9  # define a n_restarts_optimizerint value here #
-        gp_ = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=n_restarts_optimizer)
+        gp_ = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=n_restarts_optimizer, random_state=123)
         gp_.fit(Xtrain, Ytrain)
         return gp_
 
