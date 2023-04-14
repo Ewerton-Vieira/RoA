@@ -36,10 +36,14 @@ class GP:
         self.gp1 = gp1
         self.gp2 = gp2
     
+    # the output dimension changes, change the concatenate format of two y output
     def skl_learned_f(self, X):
-        X = np.array(X).reshape(1, -1)
-        y1, s1 = self.gp1.predict(X, return_std=True)
-        y2, s2 = self.gp2.predict(X, return_std=True)
+      X = np.array(X).reshape(1, -1)
+      y1, s1 = self.gp1.predict(X, return_std=True)
+      y2, s2 = self.gp2.predict(X, return_std=True)
+      if y1.shape == (1,):
+        return np.concatenate((y1, y2), axis=0).reshape(1, -1), np.concatenate((s1, s2), axis=0).reshape(1, -1)
+      elif y1.shape == (1, 1):
         return np.concatenate((y1, y2), axis=1), np.concatenate((s1, s2), axis=0).reshape(1, -1)
 
     def skl_f_mean(self,X):
