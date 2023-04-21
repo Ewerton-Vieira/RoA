@@ -10,7 +10,7 @@ Install CMGDB (Conley Morse Graph Database) https://github.com/marciogameiro/CMG
 
 pip install CMGDB
 
-and Intall pyChomp (Conley homology project (python version))
+and Install pyChomp (Conley homology project (python version))
 
 pip install pychomp2
 
