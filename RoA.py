@@ -1,7 +1,7 @@
 # RoA.py  # 2022-20-01
 # MIT LICENSE 2020 Ewerton R. Vieira
 
-import pychomp2 as pychomp
+import pychomp
 import CMGDB
 
 import numpy as np
