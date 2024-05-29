@@ -2,7 +2,7 @@
 # Base on Shaun Poset.py
 # MIT LICENSE 2020 Ewerton R. Vieira
 
-from pychomp2.DirectedAcyclicGraph import *
+from pychomp.DirectedAcyclicGraph import *
 import graphviz
 
 
